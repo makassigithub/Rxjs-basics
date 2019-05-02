@@ -1,24 +1,10 @@
-import { Observable } from 'rxjs';
+import { Observable, of, from, concat } from 'rxjs';
 
 import members from '../members';
 
-function memberSubscriiber(subscriber: any): any {
-    for( let member of members){
-        if(member.firstName === 'xxxxxxxxxx') {
-            //When error or complete is called, no more streamed data is produced.
-            subscriber.error('stoping on mai....')
-        }
-
-        subscriber.next(member);
-    }
-    setTimeout(()=>  subscriber.complete(), 500);
-   
-
-    return ()=> console.log('cleanUp is happeneing here');
-}
-
-// Different ways of creating an Observable
-
-const members$: any = new Observable(memberSubscriiber) // or Observable.create(memberSubscriiber);
-
-members$.subscribe( (member: any) => console.log( member.firstName))
+// form creates en Obsevable from a collection type
+from(members).subscribe(member => console.log(`${member.firstName}:${member.age}`));
+//of creates an Observable of all the random value ags.
+of(1,2,3,4,5,6,7,8).subscribe(value=> console.log(value));
+// use concat when conbining many Observables
+concat(of(1,2,3),from(['a','b','c'])).subscribe(value => console.log(value));
