@@ -1,10 +1,22 @@
-import { Observable, of, from, concat } from 'rxjs';
+import {ajax} from 'rxjs/ajax';
+import { XMLHttpRequest } from 'xmlhttprequest';
 
-import members from '../members';
+function createXHR() {
+  return new XMLHttpRequest();
+}
 
-// form creates en Obsevable from a collection type
-from(members).subscribe(member => console.log(`${member.firstName}:${member.age}`));
-//of creates an Observable of all the random value ags.
-of(1,2,3,4,5,6,7,8).subscribe(value=> console.log(value));
-// use concat when conbining many Observables
-concat(of(1,2,3),from(['a','b','c'])).subscribe(value => console.log(value));
+const membersUrl = 'http://0.0.0.0:8080/members';
+(function getMembers() {
+    ajax({
+        createXHR,
+        url: membersUrl,
+    })
+        .subscribe(data => {
+            const members = data.response;
+            for(let member of members){
+                console.log(`${member.firstName}:${member.age}`);
+            }
+        },
+        error => console.log(`Error:${error}`)
+    )
+}());
