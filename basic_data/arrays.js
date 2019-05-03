@@ -1,20 +1,19 @@
 "use strict";
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
 Object.defineProperty(exports, "__esModule", { value: true });
-const ajax_1 = require("rxjs/ajax");
-const xmlhttprequest_1 = require("xmlhttprequest");
-function createXHR() {
-    return new xmlhttprequest_1.XMLHttpRequest();
-}
-const membersUrl = 'http://0.0.0.0:8080/members';
-(function getMembers() {
-    ajax_1.ajax({
-        createXHR,
-        url: membersUrl,
-    })
-        .subscribe(data => {
-        const members = data.response;
-        for (let member of members) {
-            console.log(`${member.firstName}:${member.age}`);
-        }
-    }, error => console.log(`Error:${error}`));
-}());
+const rxjs_1 = require("rxjs");
+const members_1 = __importDefault(require("../members"));
+const member$ = rxjs_1.from(members_1.default);
+//#region Creating an observer
+const memberObserver = {
+    next: (member) => console.log('The value is: ' + member.firstName),
+    error: () => console.log('An error has happened'),
+    complete: () => console.log('No more streaming is left')
+};
+//Subscribing to the observable with a predefined observer object.
+member$.subscribe(memberObserver);
+//Injecting an observer in an observable
+member$.subscribe((member) => console.log(`${member.firstName} is : ${member.age}`), () => console.log('An error has happened'), () => console.log('No more streaming is left'));
+//#endregion
