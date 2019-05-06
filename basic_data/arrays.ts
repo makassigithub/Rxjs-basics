@@ -1,44 +1,21 @@
-import { interval, Observable } from 'rxjs';
+import { mergeMap, filter, tap } from 'rxjs/operators';
+import { ajax } from 'rxjs/ajax';
+import { XMLHttpRequest } from 'xmlhttprequest';
 
-const ticker$ = interval(1000);
+const url = 'http://0.0.0.0:8080/members';
 
-//#region 
-// the complete function is not called when a subscriber unsubscribes before 
-//steaming ends. One way of calling the complete() before exiting is to in implement a custon
-// observable that returns a clean up function
-// const tickerSubscriptionObject =  ticker$.subscribe(
-//     (value:any) => console.log('value-ticker$: '+ value),
-//     null,
-//     ()=> console.log('tearing down subscription ticker$'),
-// );
+function createXHR() {
+  return new XMLHttpRequest();
+}
 
-// setInterval(()=> {
-//     console.log('unsubscribing.......')
-//     tickerSubscriptionObject.unsubscribe();
-//     return process.exit(0);
-// },10000);
-//#endregion
-
-
-const ticker2$ = new Observable( subscriber => {
-    let i = 0;
-    const ID = setInterval( () => subscriber.next(i++), 1000);
-
-    return () => {
-        console.log('tearing down');
-        clearInterval(ID);
-    }
-})
-
-const tickerSubscriptionObject2 = ticker2$.subscribe(
-    (value:any) => console.log('value:-ticker2$ '+ value),
-    null,
-    ()=> console.log('tearing down subscription ticker2$'),
-
+//Creating my own operator by wrapping a built-in one:
+function memberFilterOperator(){
+  return filter(member => member.age >= 35 ),
+  tap( member => console.log('tap-FirstName: '+member.firstName))
+}
+ajax({createXHR,url: url }).pipe(
+    mergeMap(members => members.response),
+    memberFilterOperator(),
+).subscribe(
+    member => console.log("subs-member: "+JSON.stringify(member))
 )
-
-setInterval(()=> {
-        console.log('unsubscribing.......')
-        tickerSubscriptionObject2.unsubscribe();
-        return process.exit(0);
-    },10000);

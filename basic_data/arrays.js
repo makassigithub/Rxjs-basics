@@ -1,33 +1,15 @@
 "use strict";
-Object.defineProperty(exports, "__esModule", { value: true });
-const rxjs_1 = require("rxjs");
-const ticker$ = rxjs_1.interval(1000);
-//#region 
-// the complete function is not called when a subscriber unsubscribes before 
-//steaming ends. One way of calling the complete() before exiting is to in implement a custon
-// observable that returns a clean up function
-// const tickerSubscriptionObject =  ticker$.subscribe(
-//     (value:any) => console.log('value-ticker$: '+ value),
-//     null,
-//     ()=> console.log('tearing down subscription ticker$'),
-// );
-// setInterval(()=> {
-//     console.log('unsubscribing.......')
-//     tickerSubscriptionObject.unsubscribe();
-//     return process.exit(0);
-// },10000);
-//#endregion
-const ticker2$ = new rxjs_1.Observable(subscriber => {
-    let i = 0;
-    const ID = setInterval(() => subscriber.next(i++), 1000);
-    return () => {
-        console.log('tearing down');
-        clearInterval(ID);
-    };
-});
-const tickerSubscriptionObject2 = ticker2$.subscribe((value) => console.log('value:-ticker2$ ' + value), null, () => console.log('tearing down subscription ticker2$'));
-setInterval(() => {
-    console.log('unsubscribing.......');
-    tickerSubscriptionObject2.unsubscribe();
-    return process.exit(0);
-}, 10000);
+exports.__esModule = true;
+var operators_1 = require("rxjs/operators");
+var ajax_1 = require("rxjs/ajax");
+var xmlhttprequest_1 = require("xmlhttprequest");
+var url = 'http://0.0.0.0:8080/members';
+function createXHR() {
+    return new xmlhttprequest_1.XMLHttpRequest();
+}
+//Creating my own operator by wrapping a built-in one:
+function memberFilterOperator() {
+    return operators_1.filter(function (member) { return member.age >= 35; }),
+        operators_1.tap(function (member) { return console.log('tap-FirstName: ' + member.firstName); });
+}
+ajax_1.ajax({ createXHR: createXHR, url: url }).pipe(operators_1.mergeMap(function (members) { return members.response; }), memberFilterOperator()).subscribe(function (member) { return console.log("subs-member: " + JSON.stringify(member)); });
