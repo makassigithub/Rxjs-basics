@@ -1,30 +1,30 @@
 import { Observable, Subject, interval } from 'rxjs';
-import { take } from 'rxjs/operators';
+import { take, multicast} from 'rxjs/operators';
 
-// Implemeting Hot Observable multicasting.
-// By introducting a subject in between the observables and the
-// Observers, any time a value is produced, it is passes to them all.
-
+// Using multicast operators
+// The Observable return a connection to be called
+// before execution starts.
 
 const timeInter$ = interval(1000).pipe(
-    take(4)
+    take(4),
+    multicast(new Subject())
 )
 
-const timeSubject$ = new Subject();
-timeInter$.subscribe(timeSubject$);
 
-timeSubject$.subscribe(
+timeInter$.subscribe(
     value => console.log('Observer 1: '+ value),
 )
 
 setTimeout(() => {
-    timeSubject$.subscribe(
+    timeInter$.subscribe(
         value => console.log('Observer 2: '+ value),
     )
 }, 1000);
 
 setTimeout(() => {
-    timeSubject$.subscribe(
+    timeInter$.subscribe(
         value => console.log('Observer 3: '+ value),
     )
 }, 2000);
+
+timeInter$.connect();
