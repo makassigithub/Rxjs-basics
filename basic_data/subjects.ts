@@ -1,13 +1,13 @@
 import { Observable, Subject, interval } from 'rxjs';
-import { take, multicast} from 'rxjs/operators';
+import { take, multicast, publish} from 'rxjs/operators';
 
-// Using multicast operators
+// Using publish operators
 // The Observable return a connection to be called
 // before execution starts.
 
 const timeInter$ = interval(1000).pipe(
     take(4),
-    multicast(new Subject())
+    publish(),
 )
 
 
